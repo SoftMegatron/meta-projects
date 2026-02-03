@@ -11,6 +11,8 @@
 
 # Meta Projects
 
+![example workflow](https://github.com/SoftMegatron/meta-projects/actions/workflows/maven.yml/badge.svg)
+
 ## 项目简介
 
 `Meta Projects` 是一个专注于提供高效、稳定的基础工具库和框架的项目集合。它包括多个子模块，涵盖了数据处理、远程调用、扩展机制、验证工具等多个方面，旨在为开发者提供一套完整的解决方案。
