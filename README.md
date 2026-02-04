@@ -2,7 +2,7 @@
   <picture>
     <img src="https://cdn.softmegatron.com/favicon/apple-touch-icon.png" width="250" alt="SoftMegatron Logo">
   </picture>
-  <h1>SoftMegatron</h1>
+  <h1>SoftMegatron, Inc.</h1>
   <p>开源项目开发 · 商业技术服务 · 企业级解决方案</p>
   <p>基于商业智能打造的技术品牌，专注于高效、可靠、温暖的技术产品研发</p>
 </div>
@@ -11,7 +11,9 @@
 
 # Meta Projects
 
-![example workflow](https://github.com/SoftMegatron/meta-projects/actions/workflows/maven.yml/badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![build_status](https://github.com/SoftMegatron/meta-projects/actions/workflows/maven.yml/badge.svg)
+![codeclimate](https://codeclimate.com/github/SoftMegatron/meta-projects/badges/gpa.svg)
 
 ## 项目简介
 
