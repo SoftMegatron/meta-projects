@@ -19,7 +19,6 @@
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <commons-io.version>2.21.0</commons-io.version>
         <commons-codec.version>1.21.0</commons-codec.version>
-        <commons-lang.version>2.6</commons-lang.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-collections4.version>4.5.0</commons-collections4.version>
@@ -122,11 +121,6 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
