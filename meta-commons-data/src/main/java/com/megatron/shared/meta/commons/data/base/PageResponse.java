@@ -64,7 +64,7 @@ public class PageResponse<T> extends BaseResponse<PageData<T>>{
         /**
          * 特征变量
          */
-        private Map feature;
+        private Map<?, ?> feature;
         /**
          * 数据结果
          */
@@ -143,7 +143,7 @@ public class PageResponse<T> extends BaseResponse<PageData<T>>{
         }
 
         public PageResponse<T> build() {
-            return new PageResponse<T>(this);
+            return new PageResponse<>(this);
         }
     }
 }

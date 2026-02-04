@@ -2,7 +2,7 @@ package com.megatron.shared.meta.commons.validation.exception;
 
 import com.megatron.shared.meta.commons.validation.model.Violation;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

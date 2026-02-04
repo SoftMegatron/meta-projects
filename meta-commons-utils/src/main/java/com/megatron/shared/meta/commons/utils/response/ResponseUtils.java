@@ -7,7 +7,7 @@ import com.megatron.shared.meta.commons.data.base.PageRequest;
 import com.megatron.shared.meta.commons.data.base.PageResponse;
 import com.megatron.shared.meta.commons.utils.request.RequestUtils;
 
-import javax.annotation.Nonnull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -74,7 +74,7 @@ public class ResponseUtils {
      * @param <R>
      * @return
      */
-    public static <T, R> List<R> convertList(@Nonnull List<T> listInfo, Function<T, R> mapper) {
+    public static <T, R> List<R> convertList(@NotNull List<T> listInfo, Function<T, R> mapper) {
         return listInfo.stream().map(mapper).toList();
     }
 
@@ -89,7 +89,7 @@ public class ResponseUtils {
      * @param <R>
      * @return
      */
-    public static <T, R> List<R> convertList(@Nonnull List<T> listInfo,
+    public static <T, R> List<R> convertList(@NotNull List<T> listInfo,
                                              Predicate<T> preFilter,
                                              Function<T, R> mapper,
                                              Predicate<R> postFilter) {
@@ -106,7 +106,7 @@ public class ResponseUtils {
      * @param <R>
      * @return
      */
-    public static <T, R> ListResponse<R> toListResponse(@Nonnull List<T> listInfo, Function<T, R> mapper) {
+    public static <T, R> ListResponse<R> toListResponse(@NotNull List<T> listInfo, Function<T, R> mapper) {
         return new ListResponse.Builder<R>().success()
                                             .data(convertList(listInfo, mapper))
                                             .build();
@@ -123,7 +123,7 @@ public class ResponseUtils {
      * @param <R>
      * @return
      */
-    public static <T, R> ListResponse<R> toListResponse(@Nonnull List<T> listInfo,
+    public static <T, R> ListResponse<R> toListResponse(@NotNull List<T> listInfo,
                                                         Predicate<T> preFilter,
                                                         Function<T, R> mapper,
                                                         Predicate<R> postFilter) {
@@ -142,7 +142,7 @@ public class ResponseUtils {
      * @param <R>
      * @return
      */
-    public static <T, R> PageResponse<R> toPageResponse(@Nonnull List<T> listInfo,
+    public static <T, R> PageResponse<R> toPageResponse(@NotNull List<T> listInfo,
                                                         Function<T, R> mapper,
                                                         PageInfo pageInfo) {
         return new PageResponse.Builder<R>().success()
@@ -162,7 +162,7 @@ public class ResponseUtils {
      * @param <R>
      * @return
      */
-    public static <T, R> PageResponse<R> toPageResponse(@Nonnull List<T> listInfo,
+    public static <T, R> PageResponse<R> toPageResponse(@NotNull List<T> listInfo,
                                                         Predicate<T> preFilter,
                                                         Function<T, R> mapper,
                                                         Predicate<R> postFilter,
@@ -184,7 +184,7 @@ public class ResponseUtils {
      * @param <R>
      * @return
      */
-    public static <T, R> PageResponse<R> toPageResponse(@Nonnull List<T> listInfo,
+    public static <T, R> PageResponse<R> toPageResponse(@NotNull List<T> listInfo,
                                                         Function<T, R> mapper,
                                                         Integer totalCount,
                                                         PageRequest pageRequest) {
@@ -210,7 +210,7 @@ public class ResponseUtils {
      * @param <R>
      * @return
      */
-    public static <T, R> PageResponse<R> toPageResponse(@Nonnull List<T> listInfo,
+    public static <T, R> PageResponse<R> toPageResponse(@NotNull List<T> listInfo,
                                                         Predicate<T> preFilter,
                                                         Function<T, R> mapper,
                                                         Predicate<R> postFilter,
