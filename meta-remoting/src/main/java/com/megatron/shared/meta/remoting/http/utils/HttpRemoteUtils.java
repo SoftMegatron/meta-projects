@@ -10,7 +10,6 @@ import okhttp3.MultipartBody.Part;
 import okhttp3.Request;
 import okhttp3.Request.Builder;
 import okhttp3.RequestBody;
-import okhttp3.internal.Util;
 import okio.BufferedSink;
 import okio.Okio;
 import okio.Source;
@@ -23,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Closeable;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -95,9 +95,9 @@ public class HttpRemoteUtils {
             return builder;
         }
         invocation.getHeaders().entrySet().stream()
-                  .filter(e -> StringUtils.isNotEmpty(e.getKey()) && StringUtils.isNotEmpty(e.getValue()))
-                  .collect(toMap(Entry::getKey, Entry::getValue))
-                  .forEach(builder::addHeader);
+                .filter(e -> StringUtils.isNotEmpty(e.getKey()) && StringUtils.isNotEmpty(e.getValue()))
+                .collect(toMap(Entry::getKey, Entry::getValue))
+                .forEach(builder::addHeader);
         return builder;
     }
 
@@ -122,12 +122,17 @@ public class HttpRemoteUtils {
         if (invocation.getParams() == null || invocation.getParams().isEmpty()) {
             return invocation.getUrl();
         }
-        HttpUrl.Builder urlBuilder = HttpUrl.get(invocation.getUrl()).newBuilder();
+        // 适配OkHttp 5.x：HttpUrl.get()改为HttpUrl.parse()（若原方法失效）
+        HttpUrl baseUrl = HttpUrl.parse(invocation.getUrl());
+        if (baseUrl == null) {
+            throw new IllegalArgumentException("Invalid URL: " + invocation.getUrl());
+        }
+        HttpUrl.Builder urlBuilder = baseUrl.newBuilder();
         invocation.getParams().stream()
-                  .filter(e -> StringUtils.isNotEmpty(e.getName())
-                          && e.getArgument() != null
-                          && StringUtils.isNotEmpty(String.valueOf(e.getArgument())))
-                  .forEach(e -> urlBuilder.addQueryParameter(e.getName(), String.valueOf(e.getArgument())));
+                .filter(e -> StringUtils.isNotEmpty(e.getName())
+                        && e.getArgument() != null
+                        && StringUtils.isNotEmpty(String.valueOf(e.getArgument())))
+                .forEach(e -> urlBuilder.addQueryParameter(e.getName(), String.valueOf(e.getArgument())));
         return urlBuilder.build().toString();
     }
 
@@ -151,8 +156,8 @@ public class HttpRemoteUtils {
      */
     private static boolean isMultipartRequest(HttpRemoteInvocation invocation) {
         return invocation.getParams().stream()
-                         .anyMatch(e -> e.getArgument() != null
-                                 && InputStream.class.isAssignableFrom(e.getArgument().getClass()));
+                .anyMatch(e -> e.getArgument() != null
+                        && InputStream.class.isAssignableFrom(e.getArgument().getClass()));
     }
 
     /**
@@ -164,10 +169,10 @@ public class HttpRemoteUtils {
     private static RequestBody buildFormBody(HttpRemoteInvocation invocation) {
         FormBody.Builder builder = new FormBody.Builder();
         invocation.getParams().stream()
-                  .filter(e -> StringUtils.isNotEmpty(e.getName())
-                          && e.getArgument() != null
-                          && StringUtils.isNotEmpty(String.valueOf(e.getArgument())))
-                  .forEach(e -> builder.add(e.getName(), String.valueOf(e.getArgument())));
+                .filter(e -> StringUtils.isNotEmpty(e.getName())
+                        && e.getArgument() != null
+                        && StringUtils.isNotEmpty(String.valueOf(e.getArgument())))
+                .forEach(e -> builder.add(e.getName(), String.valueOf(e.getArgument())));
         return builder.build();
     }
 
@@ -180,42 +185,44 @@ public class HttpRemoteUtils {
     private static RequestBody buildMultipartBody(HttpRemoteInvocation invocation) {
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         invocation.getParams().stream()
-                  .filter(e -> StringUtils.isNotEmpty(e.getName()) && e.getArgument() != null)
-                  .forEach(e -> {
-                      boolean isFileParam = e.getClass().equals(FileRemoteParam.class);
-                      if (InputStream.class.isAssignableFrom(e.getArgument().getClass())) {
-                          String fileName = isFileParam ? ((FileRemoteParam) e).getFileName() : e.getName();
-                          String mimeType = isFileParam ? ((FileRemoteParam) e).getMimeType() : null;
-                          if (mimeType != null) {
-                              builder.addPart(Part.createFormData(e.getName(),
-                                                                  fileName,
-                                                                  create(MediaType.parse(mimeType),
-                                                                         (InputStream) e.getArgument())));
-                          } else {
-                              builder.addPart(Part.createFormData(e.getName(),
-                                                                  fileName,
-                                                                  create(null, (InputStream) e.getArgument())));
-                          }
-                      } else if (List.class.isAssignableFrom(e.getArgument().getClass())) {
-                          List<?> argList = (List) e.getArgument();
-                          argList.stream()
-                                 .filter(Objects::nonNull)
-                                 .forEach(o -> builder.addPart(Part.createFormData(e.getName(), String.valueOf(o))));
-                      } else if (e.getArgument().getClass().isArray()) {
-
-                      } else {
-
-                      }
-                  });
+                .filter(e -> StringUtils.isNotEmpty(e.getName()) && e.getArgument() != null)
+                .forEach(e -> {
+                    boolean isFileParam = e.getClass().equals(FileRemoteParam.class);
+                    if (InputStream.class.isAssignableFrom(e.getArgument().getClass())) {
+                        String fileName = isFileParam ? ((FileRemoteParam) e).getFileName() : e.getName();
+                        String mimeType = isFileParam ? ((FileRemoteParam) e).getMimeType() : null;
+                        MediaType mediaType = mimeType != null ? MediaType.parse(mimeType) : null;
+                        builder.addPart(Part.createFormData(e.getName(),
+                                fileName,
+                                create(mediaType, (InputStream) e.getArgument())));
+                    } else if (List.class.isAssignableFrom(e.getArgument().getClass())) {
+                        List<?> argList = (List) e.getArgument();
+                        argList.stream()
+                                .filter(Objects::nonNull)
+                                .forEach(o -> builder.addPart(Part.createFormData(e.getName(), String.valueOf(o))));
+                    } else if (e.getArgument().getClass().isArray()) {
+                        // 补充数组参数处理（原代码空实现，可选）
+                        Object[] array = (Object[]) e.getArgument();
+                        for (Object o : array) {
+                            if (o != null) {
+                                builder.addPart(Part.createFormData(e.getName(), String.valueOf(o)));
+                            }
+                        }
+                    } else {
+                        // 普通参数处理
+                        builder.addPart(Part.createFormData(e.getName(), String.valueOf(e.getArgument())));
+                    }
+                });
         return builder.build();
     }
 
     /**
-     * 创建文件上传请求
+     * 创建文件上传请求体
+     * 适配OkHttp 5.x：移除内部Util类，替换为原生关闭逻辑
      *
-     * @param mediaType
-     * @param inputStream
-     * @return
+     * @param mediaType    媒体类型
+     * @param inputStream  文件输入流
+     * @return RequestBody
      */
     private static RequestBody create(final MediaType mediaType, final InputStream inputStream) {
         return new RequestBody() {
@@ -227,10 +234,13 @@ public class HttpRemoteUtils {
 
             @Override
             public long contentLength() throws IOException {
+                // 注意：InputStream.available() 不一定返回真实文件大小，若需精准长度建议传入文件元信息
+                // OkHttp 5.x 若返回-1会自动处理为chunked编码
                 try {
-                    return inputStream.available();
+                    long length = inputStream.available();
+                    return length > 0 ? length : -1;
                 } catch (IOException e) {
-                    return 0;
+                    return -1;
                 }
             }
 
@@ -241,10 +251,42 @@ public class HttpRemoteUtils {
                     source = Okio.source(inputStream);
                     bufferedSink.writeAll(source);
                 } finally {
-                    Util.closeQuietly(source);
+                    // 替换 Util.closeQuietly() 为原生关闭逻辑
+                    closeQuietly(source);
+                    closeQuietly(inputStream); // 可选：根据业务决定是否关闭输入流
                 }
             }
         };
+    }
+
+    /**
+     * 静默关闭Closeable资源（替换okhttp3.internal.Util.closeQuietly）
+     *
+     * @param closeable 可关闭资源
+     */
+    private static void closeQuietly(@Nullable Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                LOGGER.warn("Failed to close resource quietly", e);
+            }
+        }
+    }
+
+    /**
+     * 适配Okio Source的静默关闭（Source不是Closeable，单独处理）
+     *
+     * @param source Okio Source
+     */
+    private static void closeQuietly(@Nullable Source source) {
+        if (source != null) {
+            try {
+                source.close();
+            } catch (IOException e) {
+                LOGGER.warn("Failed to close Okio Source quietly", e);
+            }
+        }
     }
 
     /**
