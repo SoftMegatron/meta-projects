@@ -70,7 +70,7 @@ public class BaseResponse<T> extends SimpleResponse{
         /**
          * 特征变量
          */
-        private Map feature;
+        private Map<?, ?> feature;
         /**
          * 数据
          */
@@ -149,7 +149,7 @@ public class BaseResponse<T> extends SimpleResponse{
         }
 
         public BaseResponse<T> build() {
-            return new BaseResponse<T>(this);
+            return new BaseResponse<>(this);
         }
     }
 }

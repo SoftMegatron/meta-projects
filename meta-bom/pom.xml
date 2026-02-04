@@ -15,17 +15,17 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <!-- utils version -->
-        <guava.version>29.0-jre</guava.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
-        <commons-io.version>2.6</commons-io.version>
-        <commons-codec.version>1.14</commons-codec.version>
+        <guava.version>33.5.0-jre</guava.version>
+        <commons-beanutils.version>1.11.0</commons-beanutils.version>
+        <commons-io.version>2.21.0</commons-io.version>
+        <commons-codec.version>1.21.0</commons-codec.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <commons-lang3.version>3.10</commons-lang3.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-collections.version>3.2.2</commons-collections.version>
-        <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-collections4.version>4.5.0</commons-collections4.version>
         <commons-digester.version>2.1</commons-digester.version>
         <commons-digester3.version>3.2</commons-digester3.version>
-        <commons-fileupload.version>1.4</commons-fileupload.version>
+        <commons-fileupload.version>1.6.0</commons-fileupload.version>
     </properties>
     <modules>
         <module>../meta-commons-logging</module>
@@ -137,25 +137,31 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>4.13.2</version>
             </dependency>
             <!-- logger -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.30</version>
+                <version>2.0.17</version>
             </dependency>
             <!-- okhttp -->
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
-                <version>4.6.0</version>
+                <version>4.12.0</version>
             </dependency>
             <!-- validation -->
             <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>2.0.1.Final</version>
+                <groupId>jakarta.validation</groupId>
+                <artifactId>jakarta.validation-api</artifactId>
+                <version>4.0.0-M1</version>
+            </dependency>
+            <!-- java9+ -->
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>3.0.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
